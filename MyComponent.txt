@@ -1,0 +1,79 @@
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import axios from 'axios';
+
+const MyComponent = () => {
+  const [sinhvienData, setSinhvienData] = useState([]);
+  const [lopData, setLopData] = useState([]);
+
+  useEffect(() => {
+    // Gửi yêu cầu đến API để lấy dữ liệu sinh viên
+    axios.get('http://127.0.0.1:8000/sinhvien/') // Thay thế IP và cổng của máy chủ Django
+      .then((response) => {
+        setSinhvienData(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    // Gửi yêu cầu đến API để lấy dữ liệu lớp
+    axios.get('http://127.0.0.1:8000/lop/') // Thay thế IP và cổng của máy chủ Django
+      .then((response) => {
+        setLopData(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.heading}>Danh sách sinh viên và lớp:</Text>
+      {/* Hiển thị danh sách sinh viên */}
+      <FlatList
+        data={sinhvienData}
+        keyExtractor={(item) => item.mssv.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <Text>MSSV: {item.mssv}</Text>
+            <Text>Lớp học phần: {item.lophocphan}</Text>
+            <Text>Họ tên SV: {item.hotensv}</Text>
+          </View>
+        )}
+      />
+      {/* Hiển thị danh sách lớp */}
+      <FlatList
+        data={lopData}
+        keyExtractor={(item) => item.lophocphan.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <Text>Lớp học phần: {item.lophocphan}</Text>
+            <Text>Họ tên GV: {item.hotensv}</Text>
+            <Text>GVCN: {item.gvcn}</Text>
+          </View>
+        )}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  item: {
+    backgroundColor: '#f9f9f9',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+  },
+});
+
+export default MyComponent;
